@@ -75,7 +75,7 @@ public class PaymentsControllerTests
             ExpiryYear = 2023,
             Currency = "GBP",
             Amount = 100,
-            Cvv = 456,
+            Cvv = "456",
         };
 
         var response = await _client.PostAsync("/api/Payments", JsonContent.Create(request));
