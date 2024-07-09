@@ -18,11 +18,11 @@ internal class BankAuthorizationRequest
 
     public BankAuthorizationRequest(PostPaymentRequest postPaymentRequest)
     {
-        CardNumber = postPaymentRequest.CardNumber;
+        CardNumber = postPaymentRequest.CardNumber!;
         ExpiryDate = $"{postPaymentRequest.ExpiryMonth}/{postPaymentRequest.ExpiryYear}";
-        Currency = postPaymentRequest.Currency;
-        Amount = postPaymentRequest.Amount;
-        Cvv = postPaymentRequest.Cvv;
+        Currency = postPaymentRequest.Currency!;
+        Amount = postPaymentRequest.Amount!;
+        Cvv = postPaymentRequest.Cvv!;
     }
 
     [JsonPropertyName("card_number")]

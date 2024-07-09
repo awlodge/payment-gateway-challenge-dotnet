@@ -77,7 +77,7 @@ public class PaymentsControllerTests
         {
             CardNumber = "1234567812345678",
             ExpiryMonth = 12,
-            ExpiryYear = 2023,
+            ExpiryYear = 2100,
             Currency = "GBP",
             Amount = 100,
             Cvv = "456",
@@ -102,7 +102,7 @@ public class PaymentsControllerTests
         {
             CardNumber = "1234567812345678",
             ExpiryMonth = 12,
-            ExpiryYear = 2023,
+            ExpiryYear = 2100,
             Currency = "GBP",
             Amount = 100,
             Cvv = "456",
@@ -118,5 +118,34 @@ public class PaymentsControllerTests
 
         var getResponse = await _client.GetAsync($"/api/Payments/{paymentResponse!.Id}");
         Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
+    }
+
+    [Theory]
+    [InlineData(null, 12, 2100, "GBP")]
+    [InlineData("1", 12, 2100, "GBP")]
+    [InlineData("1234567890123", 12, 2100, "GBP")]
+    [InlineData("12345678901234567890", 12, 2100, "GBP")]
+    [InlineData("1234567890123abc", 12, 2100, "GBP")]
+    [InlineData("123456789012345", 0, 2100, "GBP")]
+    [InlineData("123456789012345", 13, 2100, "GBP")]
+    [InlineData("123456789012345", 12, -1, "GBP")]
+    [InlineData("123456789012345", 12, 1999, "GBP")]
+    [InlineData("123456789012345", 12, 2100, "bad currency")]
+    [InlineData("123456789012345", 12, 2100, "ABC")]
+    public async Task RejectsInvalidPaymentRequest(string? cardNumber, int expiryMonth, int expiryYear, string? currency)
+    {
+        var request = new PostPaymentRequest
+        {
+            CardNumber = cardNumber,
+            ExpiryMonth = expiryMonth,
+            ExpiryYear = expiryYear,
+            Currency = currency,
+            Amount = 100,
+            Cvv = "456",
+        };
+
+        var response = await _client.PostAsync("/api/Payments", JsonContent.Create(request));
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 }
