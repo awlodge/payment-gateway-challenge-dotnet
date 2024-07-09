@@ -10,7 +10,7 @@ public class BankAuthorizationClient : IBankAuthorizationClient
     private readonly HttpClient _httpClient;
 
     // TODO: Put this in config.
-    private const string _baseUrl = "http://localhost:8080/payments";
+    private const string _baseUrl = "http://localhost:8080";
 
     public BankAuthorizationClient(HttpClient httpClient)
     {
@@ -21,7 +21,7 @@ public class BankAuthorizationClient : IBankAuthorizationClient
     public async Task<PaymentStatus> AuthorizationRequest(PostPaymentRequest request)
     {
         var bankAuthorizationRequest = new BankAuthorizationRequest(request);
-        var response = await _httpClient.PostAsJsonAsync(_baseUrl, bankAuthorizationRequest);
+        var response = await _httpClient.PostAsJsonAsync("/payments", bankAuthorizationRequest);
 
         if (response == null)
         {
