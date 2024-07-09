@@ -1,3 +1,4 @@
+using PaymentGateway.Api.Clients;
 using PaymentGateway.Api.Interfaces;
 using PaymentGateway.Api.Services;
 
@@ -10,6 +11,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddHttpClient<IBankAuthorizationClient, BankAuthorizationClient>();
 builder.Services.AddSingleton<IPaymentsRepository, PaymentsRepository>();
 builder.Services.AddSingleton<PaymentsService>();
 
