@@ -4,8 +4,11 @@ using System.Net.Http.Json;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 
+using Moq;
+
 using PaymentGateway.Api.Controllers;
 using PaymentGateway.Api.Interfaces;
+using PaymentGateway.Api.Models;
 using PaymentGateway.Api.Models.Requests;
 using PaymentGateway.Api.Models.Responses;
 using PaymentGateway.Api.Services;
@@ -17,11 +20,13 @@ public class PaymentsControllerTests
     private readonly Random _random = new();
     private readonly IPaymentsRepository _paymentsRepository;
     private readonly HttpClient _client;
+    private readonly Mock<IBankAuthorizationClient> _bankAuthorizationClient = new();
 
     public PaymentsControllerTests()
     {
         _paymentsRepository = new PaymentsRepository();
-        var paymentsService = new PaymentsService(_paymentsRepository);
+
+        var paymentsService = new PaymentsService(_paymentsRepository, _bankAuthorizationClient.Object);
 
         var webApplicationFactory = new WebApplicationFactory<PaymentsController>();
         _client = webApplicationFactory.WithWebHostBuilder(builder =>
@@ -77,12 +82,39 @@ public class PaymentsControllerTests
             Amount = 100,
             Cvv = "456",
         };
+        _bankAuthorizationClient.Setup(x => x.AuthorizationRequest(It.IsAny<PostPaymentRequest>())).ReturnsAsync(PaymentStatus.Authorized);
 
         var response = await _client.PostAsync("/api/Payments", JsonContent.Create(request));
 
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         var paymentResponse = await response.Content.ReadFromJsonAsync<PostPaymentResponse>();
         Assert.NotNull(paymentResponse);
+        Assert.Equal(PaymentStatus.Authorized, paymentResponse!.Status);
+
+        var getResponse = await _client.GetAsync($"/api/Payments/{paymentResponse!.Id}");
+        Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
+    }
+
+    [Fact]
+    public async Task ProcessesAPaymentDeclined()
+    {
+        var request = new PostPaymentRequest
+        {
+            CardNumber = "1234567812345678",
+            ExpiryMonth = 12,
+            ExpiryYear = 2023,
+            Currency = "GBP",
+            Amount = 100,
+            Cvv = "456",
+        };
+        _bankAuthorizationClient.Setup(x => x.AuthorizationRequest(It.IsAny<PostPaymentRequest>())).ReturnsAsync(PaymentStatus.Declined);
+
+        var response = await _client.PostAsync("/api/Payments", JsonContent.Create(request));
+
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+        var paymentResponse = await response.Content.ReadFromJsonAsync<PostPaymentResponse>();
+        Assert.NotNull(paymentResponse);
+        Assert.Equal(PaymentStatus.Declined, paymentResponse!.Status);
 
         var getResponse = await _client.GetAsync($"/api/Payments/{paymentResponse!.Id}");
         Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
