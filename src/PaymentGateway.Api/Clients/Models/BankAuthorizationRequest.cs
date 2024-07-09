@@ -19,7 +19,7 @@ internal class BankAuthorizationRequest
     public BankAuthorizationRequest(PostPaymentRequest postPaymentRequest)
     {
         CardNumber = postPaymentRequest.CardNumber!;
-        ExpiryDate = $"{postPaymentRequest.ExpiryMonth}/{postPaymentRequest.ExpiryYear}";
+        ExpiryDate = $"{postPaymentRequest.ExpiryMonth:D2}/{postPaymentRequest.ExpiryYear}";
         Currency = postPaymentRequest.Currency!;
         Amount = postPaymentRequest.Amount!;
         Cvv = postPaymentRequest.Cvv!;
