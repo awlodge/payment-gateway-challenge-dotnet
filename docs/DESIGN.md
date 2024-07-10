@@ -126,6 +126,10 @@ The payment repository stores records of payments, with the following structure:
 
 For the initial implementation, the repository is a simple in-memory data store. This is not scalable to large numbers of payments or resilient as the data will be lost if the service terminates. In the future this could be replaced by a scalable NoSQL database.
 
+## Data protection
+
+The full card number and CVV are sensitive data, so are not stored in the database and are never logged by the application. The last four digits of the card number are stored in the database to allow merchants to identify payments.
+
 ## Observability
 
 ### Logging
@@ -151,3 +155,33 @@ The service is tested using unit tests and integration tests.
 
 * Each individual service has unit tests covering its functionality.
 * Integration tests run using a simulated bank API to test the service end-to-end.
+
+## Future extensions
+
+The service could be extended in the following ways in the future, depending on requirements.
+
+### Multiple merchants
+
+At the moment, there is no concept of different merchants using the payment gateway. In the future, the service could be extended to support multiple merchants. This would require extending the database to distinguish between payments from different merchants and ensure that merchants can only see their own data. This would also require adding authentication and authorization to the API to authenticate the merchants.
+
+### Multiple bank APIs
+
+The service could be extended to support different banks, which may have their own APIs. The `IBankAuthorizationClient` interface is agnostic to the bank API, so it could be implemented for different banks. The service could be extended to support multiple bank APIs and route payments to the appropriate bank based on the merchant or other criteria.
+
+### Database
+
+As mentioned above, the in-memory data store is not scalable or resilient. In the future, this could be replaced by a scalable NoSQL database such as MongoDB. This would allow the service to store large numbers of payments and be resilient to failures.
+
+### Scalability
+
+If the payments repository were replaced by a scalable separate database, the payments gateway service itself would be stateless. This would allow it to be scaled horizontally by running multiple instances behind a load balancer.
+
+However, this would have the risk of overloading either the database or the bank authorization API. The service could be extended to use message queues to buffer payments and process them asynchronously. This would allow the service to handle bursts of payments and scale more effectively.
+
+In order to support asynchronous processing of payments, we would have to introduce a new `Pending` payment status:
+
+* The payment gateway would service create a new payment record with status `Pending` when a payment request is received. It would then put a message on a message queue to process the payment.
+* The payment repository would read messages from the queue and store the pending payment request in the database.
+* The bank authorization service would read messages from the queue and send requests for authorization to the bank API. When the bank responds it would send a message to the payment repository to store the payment request with the appropriate status.
+
+Note that care would be required here to ensure database consistency: the payment repository would need to concurrent updates to the same payment record and ensure that the final status of the payment is correct.
