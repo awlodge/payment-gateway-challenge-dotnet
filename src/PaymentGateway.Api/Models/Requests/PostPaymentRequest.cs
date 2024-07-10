@@ -24,6 +24,7 @@ public class PostPaymentRequest
     public string? Currency { get; set; }
 
     [Required]
+    [Range(0, int.MaxValue, ErrorMessage = "Amount must be non-negative")]
     public int Amount { get; set; }
 
     [Required]

@@ -116,18 +116,19 @@ public class PaymentsControllerTests
     }
 
     [Theory]
-    [InlineData(null, 12, 2100, "GBP")]
-    [InlineData("1", 12, 2100, "GBP")]
-    [InlineData("1234567890123", 12, 2100, "GBP")]
-    [InlineData("12345678901234567890", 12, 2100, "GBP")]
-    [InlineData("1234567890123abc", 12, 2100, "GBP")]
-    [InlineData("123456789012345", 0, 2100, "GBP")]
-    [InlineData("123456789012345", 13, 2100, "GBP")]
-    [InlineData("123456789012345", 12, -1, "GBP")]
-    [InlineData("123456789012345", 12, 1999, "GBP")]
-    [InlineData("123456789012345", 12, 2100, "bad currency")]
-    [InlineData("123456789012345", 12, 2100, "ABC")]
-    public async Task RejectsInvalidPaymentRequest(string? cardNumber, int expiryMonth, int expiryYear, string? currency)
+    [InlineData(null, 12, 2100, "GBP", 100)]
+    [InlineData("1", 12, 2100, "GBP", 100)]
+    [InlineData("1234567890123", 12, 2100, "GBP", 100)]
+    [InlineData("12345678901234567890", 12, 2100, "GBP", 100)]
+    [InlineData("1234567890123abc", 12, 2100, "GBP", 100)]
+    [InlineData("123456789012345", 0, 2100, "GBP", 100)]
+    [InlineData("123456789012345", 13, 2100, "GBP", 100)]
+    [InlineData("123456789012345", 12, -1, "GBP", 100)]
+    [InlineData("123456789012345", 12, 1999, "GBP", 100)]
+    [InlineData("123456789012345", 12, 2100, "bad currency", 100)]
+    [InlineData("123456789012345", 12, 2100, "ABC", 100)]
+    [InlineData("123456789012345", 12, 2100, "GBP", -1)]
+    public async Task RejectsInvalidPaymentRequest(string? cardNumber, int expiryMonth, int expiryYear, string? currency, int amount)
     {
         var request = new PostPaymentRequest
         {
@@ -135,7 +136,7 @@ public class PaymentsControllerTests
             ExpiryMonth = expiryMonth,
             ExpiryYear = expiryYear,
             Currency = currency,
-            Amount = 100,
+            Amount = amount,
             Cvv = "456",
         };
 
