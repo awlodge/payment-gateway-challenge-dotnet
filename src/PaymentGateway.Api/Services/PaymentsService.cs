@@ -2,6 +2,7 @@
 using System.Diagnostics.Metrics;
 
 using PaymentGateway.Api.Interfaces;
+using PaymentGateway.Api.Models;
 using PaymentGateway.Api.Models.Requests;
 using PaymentGateway.Api.Models.Responses;
 
@@ -41,7 +42,19 @@ public class PaymentsService
         _logger.LogInformation("Processing new payment request: {@id}", paymentId);
 
         // Authorize payment via bank.
-        var paymentStatus = await _bankAuthorizationClient.AuthorizationRequest(request);
+        PaymentStatus paymentStatus;
+
+        try
+        {
+            paymentStatus = await _bankAuthorizationClient.AuthorizationRequest(request);
+        }
+        catch (BankAuthorizationException ex)
+        {
+            _logger.LogError(ex, "Bank authorization failed for payment with id {@id}", paymentId);
+            sw.Stop();
+            throw;
+        }
+
         _logger.LogInformation("Payment with id {@id} status: {@authorized}", paymentId, paymentStatus);
 
         // Store payment.

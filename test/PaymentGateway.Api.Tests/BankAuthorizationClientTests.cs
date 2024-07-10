@@ -91,4 +91,88 @@ public class BankAuthorizationClientTests
         var result = await _bankAuthorizationClient.AuthorizationRequest(request);
         Assert.Equal(PaymentStatus.Declined, result);
     }
+
+    [Fact]
+    public async Task ThrowsOnHttpClientError()
+    {
+        var request = new PostPaymentRequest
+        {
+            CardNumber = "1234567812345678",
+            ExpiryMonth = 12,
+            ExpiryYear = 2023,
+            Currency = "GBP",
+            Amount = 100,
+            Cvv = "456",
+        };
+
+        _mockHttpMessageHandler
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>()
+            )
+            .ThrowsAsync(new HttpRequestException("Simulated error"))
+            .Verifiable();
+
+        await Assert.ThrowsAsync<BankAuthorizationException>(() => _bankAuthorizationClient.AuthorizationRequest(request));
+    }
+
+    [Fact]
+    public async Task ThrowsOnErrorResponse()
+    {
+        var request = new PostPaymentRequest
+        {
+            CardNumber = "1234567812345678",
+            ExpiryMonth = 12,
+            ExpiryYear = 2023,
+            Currency = "GBP",
+            Amount = 100,
+            Cvv = "456",
+        };
+
+        _mockHttpMessageHandler
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>()
+            )
+            .ReturnsAsync(new HttpResponseMessage()
+            {
+                StatusCode = HttpStatusCode.BadRequest,
+            })
+            .Verifiable();
+
+        await Assert.ThrowsAsync<BankAuthorizationException>(() => _bankAuthorizationClient.AuthorizationRequest(request));
+    }
+
+    [Fact]
+    public async Task ThrowsOnEmptyResponse()
+    {
+        var request = new PostPaymentRequest
+        {
+            CardNumber = "1234567812345678",
+            ExpiryMonth = 12,
+            ExpiryYear = 2023,
+            Currency = "GBP",
+            Amount = 100,
+            Cvv = "456",
+        };
+
+        _mockHttpMessageHandler
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>()
+            )
+            .ReturnsAsync(new HttpResponseMessage()
+            {
+                StatusCode = HttpStatusCode.OK,
+            })
+            .Verifiable();
+
+        await Assert.ThrowsAsync<BankAuthorizationException>(() => _bankAuthorizationClient.AuthorizationRequest(request));
+    }
 }

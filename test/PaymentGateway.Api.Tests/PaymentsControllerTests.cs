@@ -144,4 +144,23 @@ public class PaymentsControllerTests
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
+
+    [Fact]
+    public async Task Returns500OnBankAuthorizationError()
+    {
+        var request = new PostPaymentRequest
+        {
+            CardNumber = "1234567812345678",
+            ExpiryMonth = 12,
+            ExpiryYear = 2100,
+            Currency = "GBP",
+            Amount = 100,
+            Cvv = "456",
+        };
+        _bankAuthorizationClient.Setup(x => x.AuthorizationRequest(It.IsAny<PostPaymentRequest>())).ThrowsAsync(new BankAuthorizationException("Dummy message"));
+
+        var response = await _client.PostAsync("/api/Payments", JsonContent.Create(request));
+
+        Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+    }
 }

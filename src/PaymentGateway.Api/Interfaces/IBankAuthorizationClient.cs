@@ -10,5 +10,6 @@ public interface IBankAuthorizationClient
     /// </summary>
     /// <param name="request">Inbound request.</param>
     /// <returns>PaymentStatus.Authorized if the payment was authorized, PaymentStatus.Declined otherwise.</returns>
+    /// <exception cref="BankAuthorizationException">Thrown if the request fails.</exception>
     Task<PaymentStatus> AuthorizationRequest(PostPaymentRequest request);
 }

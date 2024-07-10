@@ -23,9 +23,18 @@ public class PaymentsController : Controller
     public async Task<ActionResult<PostPaymentResponse>> PostPaymentAsync(PostPaymentRequest request)
     {
         _logger.LogInformation("Processing POST payment request");
-        var payment = await _paymentsService.ProcessPaymentAsync(request);
-        _logger.LogInformation("Payment created: {@id}", payment.Id);
-        return new CreatedResult($"/api/Payments/{payment.Id}", payment);
+
+        try
+        {
+            var payment = await _paymentsService.ProcessPaymentAsync(request);
+            _logger.LogInformation("Payment created: {@id}", payment.Id);
+            return new CreatedResult($"/api/Payments/{payment.Id}", payment);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unexpected error processing payment");
+            throw;
+        }
     }
 
     [HttpGet("{id:guid}")]
