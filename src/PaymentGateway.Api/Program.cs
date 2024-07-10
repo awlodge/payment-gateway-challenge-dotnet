@@ -28,6 +28,7 @@ builder.Services.AddOpenTelemetry()
 
         builder.AddMeter("Microsoft.AspNetCore.Hosting",
                          "Microsoft.AspNetCore.Server.Kestrel");
+        builder.AddMeter("Payments");
         builder.AddView("http.server.request.duration",
             new ExplicitBucketHistogramConfiguration
             {
