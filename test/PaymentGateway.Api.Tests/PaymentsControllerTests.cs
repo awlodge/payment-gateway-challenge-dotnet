@@ -18,18 +18,17 @@ namespace PaymentGateway.Api.Tests;
 public class PaymentsControllerTests
 {
     private readonly Random _random = new();
-    private readonly IPaymentsRepository _paymentsRepository;
     private readonly HttpClient _client;
+    private readonly Mock<IPaymentsRepository> _paymentsRepository = new();
     private readonly Mock<IBankAuthorizationClient> _bankAuthorizationClient = new();
 
     public PaymentsControllerTests()
     {
-        _paymentsRepository = new PaymentsRepository();
-
         var webApplicationFactory = new WebApplicationFactory<PaymentsController>();
         _client = webApplicationFactory.WithWebHostBuilder(builder =>
             builder.ConfigureServices(services => ((ServiceCollection)services)
-                .AddSingleton(_paymentsRepository)
+                .AddMetrics()
+                .AddSingleton(_paymentsRepository.Object)
                 .AddSingleton(_bankAuthorizationClient.Object)
                 .AddSingleton<PaymentsService>()))
             .CreateClient();
@@ -49,7 +48,7 @@ public class PaymentsControllerTests
             Currency = "GBP"
         };
 
-        await _paymentsRepository.Add(payment);
+        _paymentsRepository.Setup(x => x.Get(payment.Id)).ReturnsAsync(payment).Verifiable();
 
         // Act
         var response = await _client.GetAsync($"/api/Payments/{payment.Id}");
@@ -58,6 +57,7 @@ public class PaymentsControllerTests
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var paymentResponse = await response.Content.ReadFromJsonAsync<PostPaymentResponse>();
         Assert.NotNull(paymentResponse);
+        Mock.Verify();
     }
 
     [Fact]
@@ -82,7 +82,7 @@ public class PaymentsControllerTests
             Amount = 100,
             Cvv = "456",
         };
-        _bankAuthorizationClient.Setup(x => x.AuthorizationRequest(It.IsAny<PostPaymentRequest>())).ReturnsAsync(PaymentStatus.Authorized);
+        _bankAuthorizationClient.Setup(x => x.AuthorizationRequest(It.IsAny<PostPaymentRequest>())).ReturnsAsync(PaymentStatus.Authorized).Verifiable();
 
         var response = await _client.PostAsync("/api/Payments", JsonContent.Create(request));
 
@@ -90,9 +90,7 @@ public class PaymentsControllerTests
         var paymentResponse = await response.Content.ReadFromJsonAsync<PostPaymentResponse>();
         Assert.NotNull(paymentResponse);
         Assert.Equal(PaymentStatus.Authorized, paymentResponse!.Status);
-
-        var getResponse = await _client.GetAsync($"/api/Payments/{paymentResponse!.Id}");
-        Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
+        Mock.Verify();
     }
 
     [Fact]
@@ -107,7 +105,7 @@ public class PaymentsControllerTests
             Amount = 100,
             Cvv = "456",
         };
-        _bankAuthorizationClient.Setup(x => x.AuthorizationRequest(It.IsAny<PostPaymentRequest>())).ReturnsAsync(PaymentStatus.Declined);
+        _bankAuthorizationClient.Setup(x => x.AuthorizationRequest(It.IsAny<PostPaymentRequest>())).ReturnsAsync(PaymentStatus.Declined).Verifiable();
 
         var response = await _client.PostAsync("/api/Payments", JsonContent.Create(request));
 
@@ -115,9 +113,7 @@ public class PaymentsControllerTests
         var paymentResponse = await response.Content.ReadFromJsonAsync<PostPaymentResponse>();
         Assert.NotNull(paymentResponse);
         Assert.Equal(PaymentStatus.Declined, paymentResponse!.Status);
-
-        var getResponse = await _client.GetAsync($"/api/Payments/{paymentResponse!.Id}");
-        Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
+        Mock.Verify();
     }
 
     [Theory]

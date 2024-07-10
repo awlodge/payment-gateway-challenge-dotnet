@@ -140,10 +140,10 @@ The service uses the built-in ASP.NET Core metrics for HTTP services (as describ
 
 | Metric | Type | Description | Labels |
 |--------|------|-------------|--------|
-| `payments_processed_total` | Counter | Total number of payments processed by the payment gateway | `status`, `currency` |
-| `payment_processing_time_seconds` | Histogram | Time taken to process a payment | `status` |
-| `payment_amounts` | Histogram | Amounts of payments processed by the payment gateway | `status`, `currency` |
-| `payments_stored` | Gauge | Number of payments stored in the repository | |
+| `payment_processed_total` | Counter | Total number of payments processed by the payment gateway | `status`, `currency` |
+| `payment_processed_duration_ms` | Histogram | Time taken to process a payment (in milliseconds) | `status` |
+| `payment_processed_amounts` | Histogram | Amounts of payments processed by the payment gateway | `status`, `currency` |
+| `payment_stored` | Gauge | Number of payments stored in the repository | |
 
 ## Testing
 
