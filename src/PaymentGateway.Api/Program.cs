@@ -1,6 +1,7 @@
 using OpenTelemetry.Metrics;
 
 using PaymentGateway.Api.Clients;
+using PaymentGateway.Api.Configuration;
 using PaymentGateway.Api.Interfaces;
 using PaymentGateway.Api.Services;
 
@@ -13,6 +14,8 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddLogging(builder => builder.AddConsole());
+
+builder.Services.Configure<BankAuthorizationClientOptions>(builder.Configuration.GetSection(BankAuthorizationClientOptions.BankAuthorizationClient));
 
 builder.Services.AddHttpClient<IBankAuthorizationClient, BankAuthorizationClient>();
 builder.Services.AddSingleton<IPaymentsRepository, PaymentsRepository>();

@@ -1,4 +1,7 @@
-﻿using PaymentGateway.Api.Clients.Models;
+﻿using Microsoft.Extensions.Options;
+
+using PaymentGateway.Api.Clients.Models;
+using PaymentGateway.Api.Configuration;
 using PaymentGateway.Api.Interfaces;
 using PaymentGateway.Api.Models;
 using PaymentGateway.Api.Models.Requests;
@@ -10,14 +13,11 @@ public class BankAuthorizationClient : IBankAuthorizationClient
     private readonly ILogger<BankAuthorizationClient> _logger;
     private readonly HttpClient _httpClient;
 
-    // TODO: Put this in config.
-    private const string _baseUrl = "http://localhost:8080";
-
-    public BankAuthorizationClient(ILogger<BankAuthorizationClient> logger, HttpClient httpClient)
+    public BankAuthorizationClient(ILogger<BankAuthorizationClient> logger, HttpClient httpClient, IOptions<BankAuthorizationClientOptions> options)
     {
         _logger = logger;
         _httpClient = httpClient;
-        _httpClient.BaseAddress = new Uri(_baseUrl);
+        _httpClient.BaseAddress = new Uri(options.Value.BaseUrl);
     }
 
     public async Task<PaymentStatus> AuthorizationRequest(PostPaymentRequest request)

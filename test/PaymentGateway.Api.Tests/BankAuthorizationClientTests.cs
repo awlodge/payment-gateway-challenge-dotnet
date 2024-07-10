@@ -1,11 +1,13 @@
 ﻿using System.Net;
 
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 using Moq;
 using Moq.Protected;
 
 using PaymentGateway.Api.Clients;
+using PaymentGateway.Api.Configuration;
 using PaymentGateway.Api.Models;
 using PaymentGateway.Api.Models.Requests;
 
@@ -19,8 +21,13 @@ public class BankAuthorizationClientTests
     public BankAuthorizationClientTests()
     {
         var mockLogger = new Mock<ILogger<BankAuthorizationClient>>();
+        var mockOptions = new Mock<IOptions<BankAuthorizationClientOptions>>();
+        mockOptions.SetupGet(x => x.Value).Returns(new BankAuthorizationClientOptions()
+        {
+            BaseUrl = "https://bank.example.com"
+        });
         var httpClient = new HttpClient(_mockHttpMessageHandler.Object);
-        _bankAuthorizationClient = new(mockLogger.Object, httpClient);
+        _bankAuthorizationClient = new(mockLogger.Object, httpClient, mockOptions.Object);
     }
 
     [Fact]
