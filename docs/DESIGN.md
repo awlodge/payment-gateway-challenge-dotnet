@@ -136,10 +136,10 @@ The service logs information about requests and responses, as well as errors and
 
 The service exposes metrics about its performance and usage using the Prometheus metrics format. The metrics are exposed on the `/metrics` endpoint and can be scraped by a Prometheus server for monitoring.
 
+The service uses the built-in ASP.NET Core metrics for HTTP services (as described [here](https://learn.microsoft.com/en-us/aspnet/core/log-mon/metrics/metrics?view=aspnetcore-8.0)). It also exposes the following application-specific metrics:
+
 | Metric | Type | Description | Labels |
 |--------|------|-------------|--------|
-| `http_requests_total` | Counter | Total number of requests to the payment gateway | `method` |
-| `http_responses_total` | Counter | Total number of responses from the payment gateway | `status` |
 | `payments_processed_total` | Counter | Total number of payments processed by the payment gateway | `status`, `currency` |
 | `payment_processing_time_seconds` | Histogram | Time taken to process a payment | `status` |
 | `payment_amounts` | Histogram | Amounts of payments processed by the payment gateway | `status`, `currency` |
