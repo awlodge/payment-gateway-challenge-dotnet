@@ -26,12 +26,12 @@ public class PaymentsControllerTests
     {
         _paymentsRepository = new PaymentsRepository();
 
-        var paymentsService = new PaymentsService(_paymentsRepository, _bankAuthorizationClient.Object);
-
         var webApplicationFactory = new WebApplicationFactory<PaymentsController>();
         _client = webApplicationFactory.WithWebHostBuilder(builder =>
             builder.ConfigureServices(services => ((ServiceCollection)services)
-                .AddSingleton(paymentsService)))
+                .AddSingleton(_paymentsRepository)
+                .AddSingleton(_bankAuthorizationClient.Object)
+                .AddSingleton<PaymentsService>()))
             .CreateClient();
     }
 

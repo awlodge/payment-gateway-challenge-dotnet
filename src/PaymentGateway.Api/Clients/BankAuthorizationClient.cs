@@ -7,19 +7,22 @@ namespace PaymentGateway.Api.Clients;
 
 public class BankAuthorizationClient : IBankAuthorizationClient
 {
+    private readonly ILogger<BankAuthorizationClient> _logger;
     private readonly HttpClient _httpClient;
 
     // TODO: Put this in config.
     private const string _baseUrl = "http://localhost:8080";
 
-    public BankAuthorizationClient(HttpClient httpClient)
+    public BankAuthorizationClient(ILogger<BankAuthorizationClient> logger, HttpClient httpClient)
     {
+        _logger = logger;
         _httpClient = httpClient;
         _httpClient.BaseAddress = new Uri(_baseUrl);
     }
 
     public async Task<PaymentStatus> AuthorizationRequest(PostPaymentRequest request)
     {
+        _logger.LogDebug("Sending new bank authorization request");
         var bankAuthorizationRequest = new BankAuthorizationRequest(request);
         var response = await _httpClient.PostAsJsonAsync("/payments", bankAuthorizationRequest);
 
@@ -44,6 +47,7 @@ public class BankAuthorizationClient : IBankAuthorizationClient
             throw new Exception("Bank authorization request failed: failed to parse response body");
         }
 
+        _logger.LogDebug("Bank authorization response: {@response}", responseContent);
         return responseContent.Authorized ? PaymentStatus.Authorized : PaymentStatus.Declined;
     }
 }

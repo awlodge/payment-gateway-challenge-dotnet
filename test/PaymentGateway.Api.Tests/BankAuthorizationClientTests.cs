@@ -1,5 +1,7 @@
 ﻿using System.Net;
 
+using Microsoft.Extensions.Logging;
+
 using Moq;
 using Moq.Protected;
 
@@ -16,8 +18,9 @@ public class BankAuthorizationClientTests
 
     public BankAuthorizationClientTests()
     {
+        var mockLogger = new Mock<ILogger<BankAuthorizationClient>>();
         var httpClient = new HttpClient(_mockHttpMessageHandler.Object);
-        _bankAuthorizationClient = new(httpClient);
+        _bankAuthorizationClient = new(mockLogger.Object, httpClient);
     }
 
     [Fact]
