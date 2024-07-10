@@ -2,35 +2,16 @@
 
 namespace PaymentGateway.Api.Models.Attributes;
 
-public class NumericStringAttribute : ValidationAttribute
+public class NumericStringAttribute(int minLength, int maxLength) : ValidationAttribute
 {
-    public int MinLength { get; }
-    public int MaxLength { get; }
+    public int MinLength { get; } = minLength;
+    public int MaxLength { get; } = maxLength;
 
-    public NumericStringAttribute(int minLength, int maxLength)
+    public override bool IsValid(object? value)
     {
-        MinLength = minLength;
-        MaxLength = maxLength;
-    }
-    protected override ValidationResult? IsValid(object? value, ValidationContext _)
-    {
-        if (value is string numericString)
-        {
-            if (numericString.Length < MinLength || numericString.Length > MaxLength)
-            {
-                return new ValidationResult($"Numeric string is {numericString.Length} characters long, expected between {MinLength} and {MaxLength} characters");
-            }
-
-            if (numericString.Any(c => !char.IsDigit(c)))
-            {
-                return new ValidationResult("Numeric string contains non-digits");
-            }
-
-            return ValidationResult.Success;
-        }
-        else
-        {
-            return new ValidationResult("Numeric string must be string");
-        }
+        return value is string numericString
+            && numericString.Length >= MinLength
+            && numericString.Length <= MaxLength
+            && numericString.All(char.IsDigit);
     }
 }

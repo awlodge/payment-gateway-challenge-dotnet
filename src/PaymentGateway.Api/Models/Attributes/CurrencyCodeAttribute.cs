@@ -2,7 +2,7 @@
 
 using PaymentGateway.Api.Helpers;
 
-namespace PaymentGateway.Api.Models;
+namespace PaymentGateway.Api.Models.Attributes;
 
 public class CurrencyCodeAttribute : ValidationAttribute
 {
@@ -17,7 +17,7 @@ public class CurrencyCodeAttribute : ValidationAttribute
 
             return CurrencyCodes.CurrencyCodesSet.Contains(currencyCode)
                 ? ValidationResult.Success
-                : new ValidationResult($"Currency code {currencyCode} is not a valid currency");
+                : new ValidationResult($"Currency code '{currencyCode}' is not a valid currency");
         }
         else
         {

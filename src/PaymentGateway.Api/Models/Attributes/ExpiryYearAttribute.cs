@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace PaymentGateway.Api.Models;
+namespace PaymentGateway.Api.Models.Attributes;
 
 public class ExpiryYearAttribute : ValidationAttribute
 {
