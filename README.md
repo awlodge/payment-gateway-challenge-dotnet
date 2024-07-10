@@ -1,18 +1,39 @@
-# Instructions for candidates
+# Payment Gateway Service
 
-This is the .NET version of the Payment Gateway challenge. If you haven't already read this [README.md](https://github.com/cko-recruitment/.github/tree/beta) on the details of this exercise, please do so now. 
+The Payment Gateway Service is the core service that processes payment requests. It calls the acquiring bank API to authorize the payment and stores the payment record in the database.
 
-## Template structure
+## Design
+
+See [DESIGN.md](docs/DESIGN.md).
+
+## Building and running
+
+The Payment Gateway Service is an ASP.NET web application. To build and run the service, you need the [.NET Core SDK](https://dotnet.microsoft.com/download) installed.
+
+Build and run the service within Visual Studio.
+
+## Testing
+
+### Unit tests
+
+Unit tests are defined in [test/PaymentGateway.Api.Tests](test/PaymentGateway.Api.Tests/). They use the XUnit and Moq libraries. To run the unit tests, use the Visual Studio Test Explorer.
+
+### Integrating with bank simulator
+
+To run the bank simulator, run:
+
+```bash
+docker compose up
 ```
-src/
-    PaymentGateway.Api - a skeleton ASP.NET Core Web API
-test/
-    PaymentGateway.Api.Tests - an empty xUnit test project
-imposters/ - contains the bank simulator configuration. Don't change this
 
-.editorconfig - don't change this. It ensures a consistent set of rules for submissions when reformatting code
-docker-compose.yml - configures the bank simulator
-PaymentGateway.sln
+The service is configured to talk to the bank simulator when running in a development environment.
+
+When run in a development environment, the service is exposed at `https://localhost:7092`. Swagger UI is available at `https://localhost:7092/swagger` with API documentation.
+
+### Viewing metrics
+
+The service exposes metrics in Prometheus format at `https://localhost:7092/metrics`. These can also be viewed using the [`dotnet-counters`](https://learn.microsoft.com/dotnet/core/diagnostics/dotnet-counters) tool:
+
+```powershell
+dotnet-counters monitor -n PaymentGateway.Api --counters Microsoft.AspNetCore.Hosting Payments
 ```
-
-Feel free to change the structure of the solution, use a different test library etc.
