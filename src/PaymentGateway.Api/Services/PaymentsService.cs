@@ -28,6 +28,11 @@ public class PaymentsService
         _paymentsProcessedAmountHistogram = meter.CreateHistogram<int>("payment.processed.amount", description: "Amounts of processed payments");
     }
 
+    /// <summary>
+    /// Process a payment request. Check the bank for authorization, and store the result in the payments repository.
+    /// </summary>
+    /// <param name="request">The payment request to process.</param>
+    /// <returns>The response from processing the payment.</returns>
     public async Task<PostPaymentResponse> ProcessPaymentAsync(PostPaymentRequest request)
     {
         var sw = new Stopwatch();
@@ -48,6 +53,11 @@ public class PaymentsService
         return payment;
     }
 
+    /// <summary>
+    /// Get a payment from the payment repository.
+    /// </summary>
+    /// <param name="id">GUID identifying the payment to retrieve.</param>
+    /// <returns>The payment details.</returns>
     public async Task<PostPaymentResponse?> GetPaymentAsync(Guid id)
     {
         _logger.LogInformation("Get payment with id {@id}", id);
