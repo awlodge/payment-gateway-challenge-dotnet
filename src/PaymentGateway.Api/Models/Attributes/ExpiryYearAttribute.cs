@@ -12,7 +12,7 @@ public class ExpiryYearAttribute : ValidationAttribute
 
             try
             {
-                DateTime expiryDate = new DateTime(expiryYear, expiryMonth, 1);
+                DateTime expiryDate = new(expiryYear, expiryMonth, 1);
                 if (expiryDate < DateTime.Now)
                 {
                     return new ValidationResult($"Expiry date must be in the future: {expiryYear}/{expiryMonth:D2}");

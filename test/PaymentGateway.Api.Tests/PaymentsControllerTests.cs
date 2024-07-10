@@ -38,15 +38,14 @@ public class PaymentsControllerTests
     public async Task RetrievesAPaymentSuccessfully()
     {
         // Arrange
-        var payment = new PostPaymentResponse
-        {
-            Id = Guid.NewGuid(),
-            ExpiryYear = _random.Next(2023, 2030),
-            ExpiryMonth = _random.Next(1, 12),
-            Amount = _random.Next(1, 10000),
-            CardNumberLastFour = _random.Next(1111, 9999).ToString(),
-            Currency = "GBP"
-        };
+        var payment = new PostPaymentResponse(
+            id: Guid.NewGuid(),
+            status: PaymentStatus.Authorized,
+            expiryYear: _random.Next(2023, 2030),
+            expiryMonth: _random.Next(1, 12),
+            amount: _random.Next(1, 10000),
+            cardNumberLastFour: _random.Next(1111, 9999).ToString(),
+            currency: "GBP");
 
         _paymentsRepository.Setup(x => x.Get(payment.Id)).ReturnsAsync(payment).Verifiable();
 

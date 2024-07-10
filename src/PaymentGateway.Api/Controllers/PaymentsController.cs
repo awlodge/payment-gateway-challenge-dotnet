@@ -8,16 +8,10 @@ namespace PaymentGateway.Api.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class PaymentsController : Controller
+public class PaymentsController(ILogger<PaymentsController> logger, PaymentsService paymentsService) : Controller
 {
-    private readonly ILogger<PaymentsController> _logger;
-    private readonly PaymentsService _paymentsService;
-
-    public PaymentsController(ILogger<PaymentsController> logger, PaymentsService paymentsService)
-    {
-        _logger = logger;
-        _paymentsService = paymentsService;
-    }
+    private readonly ILogger<PaymentsController> _logger = logger;
+    private readonly PaymentsService _paymentsService = paymentsService;
 
     [HttpPost]
     public async Task<ActionResult<PostPaymentResponse>> PostPaymentAsync(PostPaymentRequest request)

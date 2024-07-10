@@ -7,26 +7,23 @@ namespace PaymentGateway.Api.Services;
 
 public class PaymentsRepository : IPaymentsRepository
 {
-    public Dictionary<Guid, PostPaymentResponse> Payments = new();
-    private readonly ObservableGauge<int> _paymentsStoredGauge;
+    public Dictionary<Guid, PostPaymentResponse> Payments = [];
 
     public PaymentsRepository(IMeterFactory meterFactory)
     {
         var meter = meterFactory.Create("Payments");
-        if (meter != null)
-        {
-            // In unit tests meter is null, but we don't need the metric then.
-            _paymentsStoredGauge = meter.CreateObservableGauge<int>("payments.stored.total", () => Payments.Count, description: "Number of stored payments");
-        }
+        // In unit tests meter is null, but we don't need the metric then.
+        ObservableGauge<int>? observableGauge = meter?.CreateObservableGauge("payments.stored.total", () => Payments.Count, description: "Number of stored payments");
     }
 
-    public async Task Add(PostPaymentResponse payment)
+    public Task Add(PostPaymentResponse payment)
     {
         Payments[payment.Id] = payment;
+        return Task.CompletedTask;
     }
 
-    public async Task<PostPaymentResponse?> Get(Guid id)
+    public Task<PostPaymentResponse?> Get(Guid id)
     {
-        return Payments.GetValueOrDefault(id);
+        return Task.FromResult(Payments.GetValueOrDefault(id));
     }
 }

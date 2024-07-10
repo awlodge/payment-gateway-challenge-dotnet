@@ -29,12 +29,7 @@ public class BankAuthorizationClient : IBankAuthorizationClient
 
         try
         {
-            var response = await _httpClient.PostAsJsonAsync("/payments", bankAuthorizationRequest);
-
-            if (response == null)
-            {
-                throw new BankAuthorizationException("Bank authorization request failed: no response");
-            }
+            var response = await _httpClient.PostAsJsonAsync("/payments", bankAuthorizationRequest) ?? throw new BankAuthorizationException("Bank authorization request failed: no response");
 
             if (!response.IsSuccessStatusCode)
             {
@@ -48,12 +43,7 @@ public class BankAuthorizationClient : IBankAuthorizationClient
 
             try
             {
-                var responseContent = await response.Content.ReadFromJsonAsync<BankAuthorizationResponse?>();
-                if (responseContent == null)
-                {
-                    throw new BankAuthorizationException("Bank authorization request failed: response body is empty");
-                }
-
+                var responseContent = await response.Content.ReadFromJsonAsync<BankAuthorizationResponse?>() ?? throw new BankAuthorizationException("Bank authorization request failed: response body is empty");
                 _logger.LogDebug("Bank authorization response: {@response}", responseContent);
                 return responseContent.Authorized ? PaymentStatus.Authorized : PaymentStatus.Declined;
             }

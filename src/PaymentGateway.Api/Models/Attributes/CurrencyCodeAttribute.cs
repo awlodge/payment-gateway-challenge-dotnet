@@ -15,12 +15,9 @@ public class CurrencyCodeAttribute : ValidationAttribute
                 return new ValidationResult("Currency code must be of length 3");
             }
 
-            if (!CurrencyCodes.CurrencyCodesSet.Contains(currencyCode))
-            {
-                return new ValidationResult($"Currency code {currencyCode} is not a valid currency");
-            }
-
-            return ValidationResult.Success;
+            return CurrencyCodes.CurrencyCodesSet.Contains(currencyCode)
+                ? ValidationResult.Success
+                : new ValidationResult($"Currency code {currencyCode} is not a valid currency");
         }
         else
         {

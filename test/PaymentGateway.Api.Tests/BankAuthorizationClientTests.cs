@@ -53,7 +53,7 @@ public class BankAuthorizationClientTests
             .ReturnsAsync(new HttpResponseMessage()
             {
                 StatusCode = HttpStatusCode.OK,
-                Content = new StringContent("{\"authorized\": true,\"authorization_code\": \"0bb07405-6d44-4b50-a14f-7ae0beff13ad\"}"),
+                Content = new StringContent("{\"authorized\": true,\"authorization_code\": \"0bb07405-6d44-4b50-a14f-7ae0123413ad\"}"),
             })
             .Verifiable();
 
